@@ -1,10 +1,11 @@
 #!/bin/bash
-apt-get update > /dev/null 2> ./errors.log
-
-echo "Setting SSH params"
+RED='\033[0;31m'
+NC='\033[0m'
+apt-get update > /dev/null
+echo -e "${RED}Setting SSH params${NC}"
 
 #	doing config file backup
-cp /etc/ssh/sshd_config /etc/ssh/backup.sshd_config
+cp /etc/ssh/sshd_config /etc/ssh/$(date +%s)_backup.sshd_config
 
 #	Copy over issue file (MOTD)
 cp ./issue /etc/issue
@@ -26,8 +27,8 @@ sed -i 's|HostKey /etc/ssh/ssh_host_ecdsa_key|#HostKey /etc/ssh/ssh_host_ecdsa_k
 #	Set Banner and MOTD
 awk '{sub(/#Banner/,"Banner /etc/issue.net #")}1' /etc/ssh/sshd_config > tmp
 mv tmp /etc/ssh/sshd_config
-apt-get install figlet -y
-cp /etc/update-motd.d/00-header /etc/update-motd.d/backup.00-header
+apt-get install figlet -y > /dev/null
+cp /etc/update-motd.d/00-header /etc/update-motd.d/$(date +%s)_backup.00-header
 echo "figlet "No Trespassing"" >> /etc/update-motd.d/00-header
 
 #	Hoskpey preferences
@@ -37,31 +38,31 @@ echo -e "HostKey /etc/ssh/ssh_host_ed25519_key\nHostKey /etc/ssh/ssh_host_rsa_ke
 echo -e "KexAlgorithms curve25519-sha256@libssh.org\nCiphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr\nMACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com" >> /etc/ssh/sshd_config
 
 #	Regenerate Moduli
-echo "Regenerating Moduli, will take some time"
+echo -e  "${RED}Regenerating Moduli, will take some time${NC}"
 ssh-keygen -G moduli-2048.candidates -b 2048
 ssh-keygen -T moduli-2048 -f moduli-2048.candidates
 cp moduli-2048 /etc/ssh/moduli 
 rm moduli-2048
 
 #	Install f2b
-echo "Installing fail2ban"
-apt-get install fail2ban -y 2>> ./errors.log
+echo "${RED}Installing fail2ban${NC}"
+apt-get install fail2ban -y > /dev/null
 if [[ $(lsb_release -rs) = "16.04" ]]
-	then cp /etc/fail2ban/jail.conf /etc/fail2ban/backup.1604.jail.conf | cp ./jail.1604 /etc/fail2ban/jail.conf
+	then cp /etc/fail2ban/jail.conf /etc/fail2ban/$(date +%s)_backup.1604.jail.conf | cp ./jail.1604 /etc/fail2ban/jail.conf
 	else	
-	cp /etc/fail2ban/jail.conf /etc/fail2ban/backup.jail.conf
+	cp /etc/fail2ban/jail.conf /etc/fail2ban/$(date +%s)_backup.jail.conf
 	cp ./jail.conf /etc/fail2ban/jail.conf
 fi
 
-echo "Restarting fail2ban service"
+echo "${RED}Restarting fail2ban service${NC}"
 service fail2ban restart
 
 #	Test sshd config
-echo "Testing SSH config"
-sshd -t 
+#echo "Testing SSH config"
+#sshd -t 
 
 #	reload sshd service
-echo "Reloading sshd service"
+echo -e  "${RED}Reloading sshd service${NC}"
 systemctl reload sshd
 
 #	Get sshd audit python script
@@ -70,6 +71,32 @@ wget https://raw.githubusercontent.com/arthepsy/ssh-audit/master/ssh-audit.py
 python ./ssh-audit.py localhost
 
 #	installing ClamAV
-apt install clamav clamav-freshclam clamav-daemon -y
+apt install clamav clamav-freshclam clamav-daemon -y > /dev/null
 
+#	installing rkhunet
+apt install rkhunter -y > /dev/null
+echo -e "0 0 * * * rkhunter --update\n0 1 * * * rkhunter --check" >> /var/spool/cron/crontabs/root
+echo -e "${RED}Who shoud receive rkhunter warning emails:${NC}"
+read rkhunet_warning_mail
+echo "MAIL-ON-WARNING="$rkhunet_warning_mail"" >> /etc/rkhunter.conf
 
+# Unattended upgrades
+apt install unattended-upgrades -y
+cp /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.50unattended-upgrades
+cp /etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.20auto-upgrades
+
+# Need to use tee via pipe to output into multiple files
+echo -e "APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Download-Upgradeable-Packages "1";\nAPT::Periodic::AutocleanInterval "7";\nAPT::Periodic::Unattended-Upgrade "1";" | tee /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/20auto-upgrades
+
+#	Get apticron
+apt install apticron -y
+cp /etc/apticron/apticron.conf /etc/apticron/$(date +%s)_backup.apticron.conf
+sed -i 's/EMAIL="root"/#EMAIL="root"/g' /etc/apticron/apticron.conf
+echo "${RED}Update email receiver:${NC}"
+read apticron_email
+echo "${RED}Custom FROM address:${NC}"
+read apticron_from
+echo -e "EMAIL="$apticron_email"\nCUSTOM_FROM="$apticron_from"" >> /etc/apticron/apticron.conf
+#	Personal pref, i like my notification at the start of hour
+sed 's|[1-59]|0|g' /etc/cron.d/apticron
+echo "${RED}You all set!\nRun audit.sh\nWhen done delete this dir${NC}"
