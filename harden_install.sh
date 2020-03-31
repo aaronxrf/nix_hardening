@@ -1,10 +1,13 @@
 #!/bin/bash
 echo "Setting SSH params"
+
 #	doing config file backup
 cp /etc/ssh/sshd_config /etc/ssh/backup.sshd_config
+
 #	Copy over issue file (MOTD)
 cp ~/nix_hardening/issue /etc/issue
 cp ~/nix_hardening/issue /etc/issue.net
+
 # 	disalllow root logins
 sed -i 's/#PermitRootLogin no/PermitRootLogin no/g' /etc/ssh/sshd_config
 
@@ -28,6 +31,13 @@ echo -e "HostKey /etc/ssh/ssh_host_ed25519_key\nHostKey /etc/ssh/ssh_host_rsa_ke
 #	Change Default Ciphers and Algorithms
 echo -e "KexAlgorithms curve25519-sha256@libssh.org\nCiphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com,aes256-ctr,aes192-ctr,aes128-ctr\nMACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,umac-128-etm@openssh.com" >> /etc/ssh/sshd_config
 
+#	Regenerate Moduli
+echo "Regenerating Moduli, will take some time"
+ssh-keygen -G moduli-2048.candidates -b 2048
+ssh-keygen -T moduli-2048 -f moduli-2048.candidates
+cp moduli-2048 /etc/ssh/moduli 
+rm moduli-2048
+
 #	Install f2b
 echo "Installing fail2ban"
 apt-get install fail2ban
@@ -36,12 +46,15 @@ cp ~/nix_hardening/jail.conf /etc/fail2ban/jail.conf
 echo "Restarting fail2ban service"
 service fail2ban restart
 
+#	Test sshd config
+echo "Testing SSH config"
+sshd -t
 
 #	reload sshd service
-sudo systemctl reload sshd
+echo "Reloading sshd service"
+systemctl reload sshd
 
 #	Get sshd audit python script
 #	Just check that all is fine and "green"
 wget https://raw.githubusercontent.com/arthepsy/ssh-audit/master/ssh-audit.py
 python ./ssh-audit.py
-
