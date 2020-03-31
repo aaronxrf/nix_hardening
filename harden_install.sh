@@ -40,7 +40,7 @@ rm moduli-2048
 
 #	Install f2b
 echo "Installing fail2ban"
-apt-get install fail2ban
+apt-get install fail2ban -y
 cp /etc/fail2ban/jail.conf /etc/fail2ban/backup.jail.conf
 cp ~/nix_hardening/jail.conf /etc/fail2ban/jail.conf
 echo "Restarting fail2ban service"
@@ -57,4 +57,4 @@ systemctl reload sshd
 #	Get sshd audit python script
 #	Just check that all is fine and "green"
 wget https://raw.githubusercontent.com/arthepsy/ssh-audit/master/ssh-audit.py
-python ./ssh-audit.py
+python ./ssh-audit.py localhost
