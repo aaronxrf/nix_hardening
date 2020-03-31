@@ -86,7 +86,7 @@ cp /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/$(date +%s)_bac
 cp /etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.20auto-upgrades
 
 # Need to use tee via pipe to output into multiple files
-echo -e "APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Download-Upgradeable-Packages "1";\nAPT::Periodic::AutocleanInterval "7";\nAPT::Periodic::Unattended-Upgrade "1";" | tee /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/20auto-upgrades
+echo -e "APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Download-Upgradeable-Packages "1";\nAPT::Periodic::AutocleanInterval "7";\nAPT::Periodic::Unattended-Upgrade "1";" | tee /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/20auto-upgrades > /dev/null
 
 #	Get apticron
 apt-get install apticron -y >> /dev/null
