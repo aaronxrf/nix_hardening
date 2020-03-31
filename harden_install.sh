@@ -68,3 +68,8 @@ systemctl reload sshd
 #	Just check that all is fine and "green"
 wget https://raw.githubusercontent.com/arthepsy/ssh-audit/master/ssh-audit.py
 python ./ssh-audit.py localhost
+
+#	installing ClamAV
+apt install clamav clamav-freshclam clamav-daemon -y
+
+
