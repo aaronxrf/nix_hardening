@@ -21,7 +21,7 @@ sed -i 's/#ClientAliveCountMax 3/ClientAliveCountMax 2/g' /etc/ssh/sshd_config
 sed -i 's/X11Forwarding yes/X11Forwarding no/g' /etc/ssh/sshd_config
 
 #Ubuntu 16.04 special, disable weak elliptic curves
-sed -i 's|HostKey /etc/ssh/ssh_host_ecdsa_key|#HostKey /etc/ssh/ssh_host_ecdsa_key/g' /etc/ssh/sshd_config
+sed -i 's|HostKey /etc/ssh/ssh_host_ecdsa_key|#HostKey /etc/ssh/ssh_host_ecdsa_key|g' /etc/ssh/sshd_config
 
 #	Set Banner and MOTD
 awk '{sub(/#Banner none/,"Banner /etc/issue.net")}1' /etc/ssh/sshd_config > tmp
