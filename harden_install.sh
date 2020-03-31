@@ -24,7 +24,7 @@ sed -i 's/X11Forwarding yes/X11Forwarding no/g' /etc/ssh/sshd_config
 sed -i 's|HostKey /etc/ssh/ssh_host_ecdsa_key|#HostKey /etc/ssh/ssh_host_ecdsa_key|g' /etc/ssh/sshd_config
 
 #	Set Banner and MOTD
-awk '{sub(/#Banner none/,"Banner /etc/issue.net")}1' /etc/ssh/sshd_config > tmp
+awk '{sub(/#Banner/,"Banner /etc/issue.net #")}1' /etc/ssh/sshd_config > tmp
 mv tmp /etc/ssh/sshd_config
 apt-get install figlet -y
 cp /etc/update-motd.d/00-header /etc/update-motd.d/backup.00-header
