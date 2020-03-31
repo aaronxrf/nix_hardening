@@ -1,5 +1,5 @@
 #!/bin/bash
-apt-get update -y && apt-get upgrade -y > /dev/null 2> ./errors.log
+apt-get update > /dev/null 2> ./errors.log
 
 echo "Setting SSH params"
 
