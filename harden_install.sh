@@ -7,8 +7,8 @@ echo "Setting SSH params"
 cp /etc/ssh/sshd_config /etc/ssh/backup.sshd_config
 
 #	Copy over issue file (MOTD)
-cp ~/nix_hardening/issue /etc/issue
-cp ~/nix_hardening/issue /etc/issue.net
+cp ./issue /etc/issue
+cp ./issue /etc/issue.net
 
 # 	disalllow root logins
 sed -i 's/#PermitRootLogin no/PermitRootLogin no/g' /etc/ssh/sshd_config
@@ -19,6 +19,9 @@ sed -i 's/#ClientAliveCountMax 3/ClientAliveCountMax 2/g' /etc/ssh/sshd_config
 
 #	Disable X11Forwarding
 sed -i 's/X11Forwarding yes/X11Forwarding no/g' /etc/ssh/sshd_config
+
+#Ubuntu 16.04 special, disable weak elliptic curves
+sed -i 's|HostKey /etc/ssh/ssh_host_ecdsa_key|#HostKey /etc/ssh/ssh_host_ecdsa_key/g' /etc/ssh/sshd_config
 
 #	Set Banner and MOTD
 awk '{sub(/#Banner none/,"Banner /etc/issue.net")}1' /etc/ssh/sshd_config > tmp
@@ -42,9 +45,14 @@ rm moduli-2048
 
 #	Install f2b
 echo "Installing fail2ban"
-apt-get install fail2ban -y
-cp /etc/fail2ban/jail.conf /etc/fail2ban/backup.jail.conf
-cp ~/nix_hardening/jail.conf /etc/fail2ban/jail.conf
+apt-get install fail2ban -y 2>> ./errors.log
+if [[ $(lsb_release -rs) = "16.04" ]]
+	then cp /etc/fail2ban/jail.conf /etc/fail2ban/backup.1604.jail.conf | cp ./jail.1604 /etc/fail2ban/jail.conf
+	else	
+	cp /etc/fail2ban/jail.conf /etc/fail2ban/backup.jail.conf
+	cp ./jail.conf /etc/fail2ban/jail.conf
+fi
+
 echo "Restarting fail2ban service"
 service fail2ban restart
 
