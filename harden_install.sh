@@ -99,4 +99,4 @@ read apticron_from
 echo -e "EMAIL="\"${apticron_email}"\"\nCUSTOM_FROM="\"${apticron_from}"\"" >> /etc/apticron/apticron.conf
 #	Personal pref, i like my notification at the start of hour
 sed -i 's|[1-59]|0|g' /etc/cron.d/apticron
-echo "${RED}You all set!\nRun audit.sh\nWhen done delete this dir${NC}"
+echo -e "${RED}You all set!\nRun audit.sh\nWhen done delete this dir${NC}"
