@@ -1,4 +1,6 @@
 #!/bin/bash
+apt-get update -y && apt-get upgrade -y > /dev/null 2> ./errors.log
+
 echo "Setting SSH params"
 
 #	doing config file backup
@@ -48,7 +50,7 @@ service fail2ban restart
 
 #	Test sshd config
 echo "Testing SSH config"
-sshd -t
+sshd -t 
 
 #	reload sshd service
 echo "Reloading sshd service"
