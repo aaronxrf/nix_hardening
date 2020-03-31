@@ -71,17 +71,17 @@ wget https://raw.githubusercontent.com/arthepsy/ssh-audit/master/ssh-audit.py
 python ./ssh-audit.py localhost
 
 #	installing ClamAV
-apt install clamav clamav-freshclam clamav-daemon -y > /dev/null
+apt-get install clamav clamav-freshclam clamav-daemon -y > /dev/null
 
 #	installing rkhunet
-apt install rkhunter -y > /dev/null
+apt-get install rkhunter -y > /dev/null
 echo -e "0 0 * * * rkhunter --update\n0 1 * * * rkhunter --check" >> /var/spool/cron/crontabs/root
 echo -e "${RED}Who shoud receive rkhunter warning emails:${NC}"
 read rkhunet_warning_mail
 echo -e "MAIL-ON-WARNING="\"${rkhunet_warning_mail}"\"" >> /etc/rkhunter.conf
 
 # Unattended upgrades
-apt install unattended-upgrades -y >> /dev/null
+apt-get install unattended-upgrades -y >> /dev/null
 cp /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.50unattended-upgrades
 cp /etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.20auto-upgrades
 
@@ -89,7 +89,7 @@ cp /etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.20
 echo -e "APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Download-Upgradeable-Packages "1";\nAPT::Periodic::AutocleanInterval "7";\nAPT::Periodic::Unattended-Upgrade "1";" | tee /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/20auto-upgrades
 
 #	Get apticron
-apt install apticron -y >> /dev/null
+apt-get install apticron -y >> /dev/null
 cp /etc/apticron/apticron.conf /etc/apticron/$(date +%s)_backup.apticron.conf
 sed -i 's/EMAIL="root"/#EMAIL="root"/g' /etc/apticron/apticron.conf
 echo -e "${RED}Email receiver:${NC}"
