@@ -45,7 +45,7 @@ cp moduli-2048 /etc/ssh/moduli
 rm moduli-2048
 
 #	Install f2b
-echo "${RED}Installing fail2ban${NC}"
+echo -e "${RED}Installing fail2ban${NC}"
 apt-get install fail2ban -y > /dev/null
 if [[ $(lsb_release -rs) = "16.04" ]]
 	then cp /etc/fail2ban/jail.conf /etc/fail2ban/$(date +%s)_backup.1604.jail.conf | cp ./jail.1604 /etc/fail2ban/jail.conf
@@ -54,7 +54,7 @@ if [[ $(lsb_release -rs) = "16.04" ]]
 	cp ./jail.conf /etc/fail2ban/jail.conf
 fi
 
-echo "${RED}Restarting fail2ban service${NC}"
+echo -e "${RED}Restarting fail2ban service${NC}"
 service fail2ban restart
 
 #	Test sshd config
@@ -78,10 +78,10 @@ apt install rkhunter -y > /dev/null
 echo -e "0 0 * * * rkhunter --update\n0 1 * * * rkhunter --check" >> /var/spool/cron/crontabs/root
 echo -e "${RED}Who shoud receive rkhunter warning emails:${NC}"
 read rkhunet_warning_mail
-echo "MAIL-ON-WARNING="$rkhunet_warning_mail"" >> /etc/rkhunter.conf
+echo -e "MAIL-ON-WARNING="\"${rkhunet_warning_mail}"\"" >> /etc/rkhunter.conf
 
 # Unattended upgrades
-apt install unattended-upgrades -y
+apt install unattended-upgrades -y >> /dev/null
 cp /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.50unattended-upgrades
 cp /etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.20auto-upgrades
 
@@ -89,14 +89,14 @@ cp /etc/apt/apt.conf.d/20auto-upgrades /etc/apt/apt.conf.d/$(date +%s)_backup.20
 echo -e "APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Download-Upgradeable-Packages "1";\nAPT::Periodic::AutocleanInterval "7";\nAPT::Periodic::Unattended-Upgrade "1";" | tee /etc/apt/apt.conf.d/50unattended-upgrades /etc/apt/apt.conf.d/20auto-upgrades
 
 #	Get apticron
-apt install apticron -y
+apt install apticron -y >> /dev/null
 cp /etc/apticron/apticron.conf /etc/apticron/$(date +%s)_backup.apticron.conf
 sed -i 's/EMAIL="root"/#EMAIL="root"/g' /etc/apticron/apticron.conf
-echo "${RED}Update email receiver:${NC}"
+echo -e "${RED}Email receiver:${NC}"
 read apticron_email
-echo "${RED}Custom FROM address:${NC}"
+echo -e "${RED}Custom FROM:${NC}"
 read apticron_from
-echo -e "EMAIL="$apticron_email"\nCUSTOM_FROM="$apticron_from"" >> /etc/apticron/apticron.conf
+echo -e "EMAIL="\"${apticron_email}"\"\nCUSTOM_FROM="\"${apticron_from}"\"" >> /etc/apticron/apticron.conf
 #	Personal pref, i like my notification at the start of hour
-sed 's|[1-59]|0|g' /etc/cron.d/apticron
+sed -i 's|[1-59]|0|g' /etc/cron.d/apticron
 echo "${RED}You all set!\nRun audit.sh\nWhen done delete this dir${NC}"
