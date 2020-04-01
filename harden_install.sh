@@ -28,9 +28,8 @@ sed -i 's|HostKey /etc/ssh/ssh_host_ecdsa_key|#HostKey /etc/ssh/ssh_host_ecdsa_k
 awk '{sub(/#Banner/,"Banner /etc/issue.net #")}1' /etc/ssh/sshd_config > tmp
 mv tmp /etc/ssh/sshd_config
 apt-get install figlet -y > /dev/null
-cp /etc/update-motd.d/00-header /etc/update-motd.d/$(date +%s)_backup.00-header || cp /etc/motd /etc/$(date +%s)_backup.motd
-echo "figlet "No Trespassing"" >> /etc/update-motd.d/00-header || echo "figlet "No Trespassing"" >> /etc/motd
-
+cp /etc/update-motd.d/00-header /etc/update-motd.d/$(date +%s)_backup.00-header || cp /etc/update-motd.d/10-uname /etc/update-motd.d/(date +%s)_backup.10-uname && echo "figlet "No Trespassing"" >> /etc/update-motd.d/10-uname
+test -f /etc/update-motd.d/10-uname || echo "figlet "No Trespassing"" >> /etc/update-motd.d/00-header
 #	Hoskpey preferences
 echo -e "HostKey /etc/ssh/ssh_host_ed25519_key\nHostKey /etc/ssh/ssh_host_rsa_key\n" >> /etc/ssh/sshd_config
 
