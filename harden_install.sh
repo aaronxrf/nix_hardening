@@ -28,8 +28,8 @@ sed -i 's|HostKey /etc/ssh/ssh_host_ecdsa_key|#HostKey /etc/ssh/ssh_host_ecdsa_k
 awk '{sub(/#Banner/,"Banner /etc/issue.net #")}1' /etc/ssh/sshd_config > tmp
 mv tmp /etc/ssh/sshd_config
 apt-get install figlet -y > /dev/null
-cp /etc/update-motd.d/00-header /etc/update-motd.d/$(date +%s)_backup.00-header
-echo "figlet "No Trespassing"" >> /etc/update-motd.d/00-header
+cp /etc/update-motd.d/00-header /etc/update-motd.d/$(date +%s)_backup.00-header || cp /etc/motd /etc/$(date +%s)_backup.motd
+echo "figlet "No Trespassing"" >> /etc/update-motd.d/00-header || echo "figlet "No Trespassing"" >> /etc/motd
 
 #	Hoskpey preferences
 echo -e "HostKey /etc/ssh/ssh_host_ed25519_key\nHostKey /etc/ssh/ssh_host_rsa_key\n" >> /etc/ssh/sshd_config
@@ -76,7 +76,7 @@ apt-get install clamav clamav-freshclam clamav-daemon -y > /dev/null
 #	installing rkhunet
 apt-get install rkhunter -y > /dev/null
 echo -e "0 0 * * * rkhunter --update\n0 1 * * * rkhunter --check" >> /var/spool/cron/crontabs/root
-echo -e "${RED}Who shoud receive rkhunter warning emails:${NC}"
+echo -e "${RED}rkhunter: Who shoud receive warning emails:${NC}"
 read rkhunet_warning_mail
 echo -e "MAIL-ON-WARNING="\"${rkhunet_warning_mail}"\"" >> /etc/rkhunter.conf
 
@@ -92,9 +92,9 @@ echo -e "APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Download-Upgra
 apt-get install apticron -y >> /dev/null
 cp /etc/apticron/apticron.conf /etc/apticron/$(date +%s)_backup.apticron.conf
 sed -i 's/EMAIL="root"/#EMAIL="root"/g' /etc/apticron/apticron.conf
-echo -e "${RED}Email receiver:${NC}"
+echo -e "${RED}Apticron: Email receiver(-s):${NC}"
 read apticron_email
-echo -e "${RED}Custom FROM:${NC}"
+echo -e "${RED}Apticron: Custom FROM:${NC}"
 read apticron_from
 echo -e "EMAIL="\"${apticron_email}"\"\nCUSTOM_FROM="\"${apticron_from}"\"" >> /etc/apticron/apticron.conf
 #	Personal pref, i like my notification at the start of hour
