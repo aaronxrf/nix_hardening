@@ -2,3 +2,4 @@
 .harden_install.sh.swp
 *.swp
 ssh-audit.py
+desktop.ini
