@@ -75,6 +75,7 @@ apt-get install clamav clamav-freshclam clamav-daemon -y > /dev/null
 #	installing rkhunet
 apt-get install rkhunter -y > /dev/null
 echo -e "0 0 * * * rkhunter --update\n0 1 * * * rkhunter --check" >> /var/spool/cron/crontabs/root
+rkhunter --propupd
 echo -e "${RED}rkhunter: Who shoud receive warning emails:${NC}"
 read rkhunet_warning_mail
 echo -e "MAIL-ON-WARNING="\"${rkhunet_warning_mail}"\"" >> /etc/rkhunter.conf
